@@ -138,6 +138,7 @@ GEM
     net-http-digest_auth (1.4)
     net-http-persistent (2.9.4)
     netrc (0.7.7)
+    newrelic_rpm (3.8.1.221)
     nokogiri (1.6.3.1)
       mini_portile (= 0.6.0)
     ntlm-http (0.1.1)
@@ -294,6 +295,7 @@ DEPENDENCIES
   launchy
   mini_magick
   mysql2
+  newrelic_rpm
   nokogiri
   opml!
   pg
