@@ -303,6 +303,7 @@ DEPENDENCIES
   quiet_assets
   rails (= 4.1.6)
   rails_12factor
+  rake
   rspec-activemodel-mocks
   rspec-rails
   sass-rails (~> 4.0.0)
