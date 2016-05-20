@@ -15,8 +15,7 @@
 #  updated_on        :datetime         not null
 #
 
-#require "string_utils"
-#require "fastladder/crawler"
+# require "fastladder/crawler"
 require "open-uri"
 require "tempfile"
 
@@ -25,8 +24,8 @@ class Feed < ActiveRecord::Base
   has_one :favicon
   has_many :items
   has_many :subscriptions
-  #has_many :members, through: :subscriptions
-  #has_many :folders, through: :subscriptions
+  # has_many :members, through: :subscriptions
+  # has_many :folders, through: :subscriptions
 
   before_save :except_fragment_identifier, :default_values
 
@@ -41,6 +40,10 @@ class Feed < ActiveRecord::Base
 
   def description
     CGI.escapeHTML self[:description].to_s
+  end
+
+  def description=(str)
+    self[:description] = str.to_s
   end
 
   def self.initialize_from_uri(uri)
@@ -63,21 +66,13 @@ class Feed < ActiveRecord::Base
     feed
   end
 
-  def icon
-    if self.favicon
-      "/icon/#{self.id}"
-    else
-      "/img/icon/default.png"
-    end
-  end
-
   def to_json(options = {})
     result = {}
-    %w(title description).each do |s|
-      result[s.to_sym] = (self.send(s) || "").purify_html
+    %i(title description).each do |s|
+      result[s] = (self.send(s) || "").purify_html
     end
-    %w(feedlink link image).each do |s|
-      result[s.to_sym] = (self.send(s) || "").purify_uri
+    %i(feedlink link image).each do |s|
+      result[s] = (self.send(s) || "").purify_uri
     end
 
     result[:expires] = 0

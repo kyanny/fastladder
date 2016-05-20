@@ -1,97 +1,96 @@
 source 'https://rubygems.org'
+gem 'rails', '4.2.3'
 
-# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.1.6'
+# Include database gems for the adapters found in the database
+# configuration file or DATABASE_URL
+require 'erb'
+require 'uri'
+require 'yaml'
 
-# Use mysql as the database for Active Record
-group :test, :development do
-  gem 'sqlite3'
-  gem 'mysql2'
+database_file = File.join(File.dirname(__FILE__), "config/database.yml")
+adapters = []
+
+if File.exist?(database_file)
+  database_config = YAML::load(ERB.new(IO.read(database_file)).result)
+  adapters += database_config.values.map {|conf| conf['adapter']}.compact.uniq
 end
 
-group :production do
-  gem 'unicorn'
+if database_url = ENV['DATABASE_URL']
+  adapters << URI.parse(database_url).scheme
+end
+
+if adapters.any?
+  adapters.each do |adapter|
+    case adapter
+    when 'mysql2'     ; gem 'mysql2'
+    when 'mysql'      ; gem 'mysql'
+    when /postgres/   ; gem 'pg'
+    when /sqlite3/    ; gem 'sqlite3'
+    else
+      warn("Unknown database adapter `#{adapter}` found in config/database.yml, use Gemfile.local to load your own database gems")
+    end
+  end
+else
+  warn("No adapter found in config/database.yml or DATABASE_URL, please configure it first -- fallback to pg")
   gem 'pg'
-  gem 'rails_12factor'
 end
 
-gem 'haml'
-
-# current release version has no `feed.description` method. this is why :git used
-gem 'feedjira'
-gem 'opml', github: 'fastladder/opml'
+gem 'coffee-rails', '~> 4.1.0'
 gem 'feed_searcher', '>= 0.0.6'
-gem 'nokogiri'
-gem "mini_magick"
+
 gem "addressable", require: "addressable/uri"
-gem "settingslogic"
 gem 'newrelic_rpm'
-
-# Use SCSS for stylesheets
-gem 'sass-rails', '~> 4.0.0'
-
-# Use Uglifier as compressor for JavaScript assets
-gem 'uglifier', '>= 1.3.0'
-
-# Use CoffeeScript for .js.coffee assets and views
-gem 'coffee-rails', '~> 4.0.0'
 
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
 
+gem 'feedjira'
+gem 'haml'
+gem 'slim'
+
 gem 'i18n-js', github: 'fnando/i18n-js'
-
-# Use jquery as the JavaScript library
-gem 'jquery-rails'
-
-# Turbolinks makes following links in your web application faster. Read more: https://github.com/rails/turbolinks
-gem 'turbolinks'
-
-# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '~> 2.0'
+gem 'jquery-rails'
+gem 'mini_magick'
+gem 'nokogiri'
+gem 'opml', github: 'fastladder/opml'
+gem 'sass-rails', '~> 5.0.0'
+gem 'settingslogic'
+gem 'uglifier', '>= 1.3.0'
 
-group :doc do
-  # bundle exec rake doc:rails generates the API under doc/api.
-  gem 'sdoc', require: false
+group :development, :test do
+  gem 'pry-byebug'
 end
 
 group :development do
+  gem 'annotate'
   gem 'pry-rails'
   gem 'pry-doc'
-  gem 'annotate'
   gem 'quiet_assets'
 end
 
-group :development, :test do
-  gem 'rspec-rails'
-  gem 'rspec-activemodel-mocks'
+group :test do
   gem 'capybara'
-  gem 'launchy'
+  gem 'coveralls', require: false
   gem 'factory_girl_rails'
+  gem 'konacha'
+  gem 'launchy'
+  gem 'poltergeist'
+  gem 'rspec-activemodel-mocks'
+  gem 'rspec-rails'
   gem 'simplecov'
   gem 'simplecov-rcov'
-  gem 'coveralls', require: false
-end
-
-group :test do
+  gem 'sinon-rails'
+  gem 'puma'
   gem 'webmock'
 end
 
-group :test, :development do
-  gem 'konacha'
-  gem 'poltergeist'
-  gem 'sinon-rails'
-  gem 'thin'
+group :production do
+  gem 'rails_12factor'
+  gem 'unicorn'
 end
 
-# Use ActiveModel has_secure_password
-# gem 'bcrypt-ruby', '~> 3.0.0'
+group :doc do
+  gem 'sdoc', require: false
+end
 
-# Use unicorn as the app server
-# gem 'unicorn'
-
-# Use Capistrano for deployment
-# gem 'capistrano', group: :development
-
-# Use debugger
-# gem 'debugger', group: [:development, :test]
